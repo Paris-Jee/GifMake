@@ -10,6 +10,7 @@ namespace xing_gifmake
 {
     public class Run
     {
+        //test
 
         //获取当前应用程序启动目录
         string starpath = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
