@@ -8,3 +8,4 @@ C# WPF FFMPEG 自定义台词GIF表情包生成工具
 **未解决问题**
 1. 字幕嵌入花费近2分钟时间
 
+![](https://github.com/Berumotto-Github/GifMake/blob/master/sr.gif?raw=true)
