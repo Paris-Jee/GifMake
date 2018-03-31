@@ -1,7 +1,7 @@
 # GifBiaoQingBao
 C#WPF调用FFMPEG实现“sorry为所欲为/王境泽”gif表情包生成
 
-![](https://images2018.cnblogs.com/blog/1086008/201803/1086008-20180331142208016-302654507.gif)
+![](https://github.com/Berumotto-Github/GifMake/blob/master/xing_gifmake/gifys.gif?raw=true)
 
 **实现原理**
 1. 调用ffmpeg将srt/ass字幕嵌入表情视频
