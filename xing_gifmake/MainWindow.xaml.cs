@@ -16,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using static xing_gifmake.Subtitle;
 
 namespace xing_gifmake
 {
@@ -30,31 +32,66 @@ namespace xing_gifmake
         //gif保存路径
         string gifsavepath = "";
 
+        //使用的模板视频文件
+        string tp = "wsyw";
+
+        //操作控制台
         Run run = new Run();
+
+        //台词输入框数组
+        List<TextBox> tblist = null;
+
+        //台词总数
+        int tcs = 0;
+
+        //定时器，用于实时显示台词
+        DispatcherTimer dt;
 
         public MainWindow()
         {
 
             InitializeComponent();
 
-            
+            ChanagedTemplate(0);
+
             run.RunedEvent += RunedEvent;
 
+            //初始化计时器
+            dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromSeconds(0.5);
+
+            dt.Tick += dt_tick;
+            dt.Start();
+            mediaElement.MediaEnded += (e, c) =>
+            {
+                mediaElement.Stop();
+                mediaElement.Play();
+            };
+        }
+        List<TC> tclist = new List<TC>();
+
+        private void dt_tick(object sender, EventArgs e)
+        {
+
+            //定时刷新台词
+            tctb.Text = Subtitle.GetTC(tclist,mediaElement.Position.TotalMilliseconds);
         }
 
         #region 指令运行完成事件监听
         private void RunedEvent(object rid)
         {
+            Debug.WriteLine(rid);
+
             if (rid.ToString() == "ass")
             {
-                
-                string assstr = File.ReadAllText(starpath + "\\ffmpeg\\wsyw.ass");
+
+                string assstr = File.ReadAllText(starpath + "\\ffmpeg\\ass.ass");
                 //因为输出图片尺寸过小所以这里调整字幕字体大小，从16>30，直接用简单粗暴的文本替换实现。
                 assstr = assstr.Replace(",16,", ",30,");
-                File.WriteAllText(starpath + "\\ffmpeg\\wsyw.ass", assstr);
+                File.WriteAllText(starpath + "\\ffmpeg\\ass.ass", assstr);
 
-                //将ass字幕嵌入视频，这里需要等待2分钟左右的时间才能完成字幕嵌入，不知道为何。
-                string Parameters = String.Format("-i " + starpath + "\\ffmpeg\\wsyw.mp4 -vf ass=wsyw.ass -y " + starpath + "\\ffmpeg\\wsyw_cache.mp4");
+                //将ass字幕嵌入视频
+                string Parameters = String.Format("-i " + starpath + "\\ffmpeg\\" + tp + ".mp4 -vf ass=ass.ass -y " + starpath + "\\ffmpeg\\" + tp + "_cache.mp4");
 
                 run.Execute(Parameters, "qr");
 
@@ -64,75 +101,144 @@ namespace xing_gifmake
 
 
                 //嵌入字幕完成，导出gif
-                string Parameters = String.Format(" -i " + starpath + "\\ffmpeg\\wsyw_cache.mp4 -y -s 406x224 " + gifsavepath);
+                string Parameters = String.Format(" -i " + starpath + "\\ffmpeg\\" + tp + "_cache.mp4 -y -s 406x224 " + gifsavepath);
 
                 run.Execute(Parameters, "gif");
 
             }
-            else
+            else if (rid.ToString() == "gif")
             {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
 
-                    makebtn.IsEnabled = true;
+                    //makebtn.IsEnabled = true;
 
-                    makebtn.Content = "生成GIF";
+                    //makebtn.Content = "生成GIF";
+                    button.IsEnabled = true;
+                    button.Content = "生成GIF";
+                    settinggb.IsEnabled = true;
 
-                    MessageBox.Show("久等，生成GIF完成了~");
+                    MessageBox.Show("GIF生成完毕~","久等");
+                   
 
                 }));
             }
         }
         #endregion
 
-        #region 生成GIF按钮点击
-        private void makebtn_Click(object sender, RoutedEventArgs e)
+
+
+
+
+        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MakeSrt();
+            if (IsLoaded)
+            {
+                ChanagedTemplate(comboBox.SelectedIndex);
+            }
+        }
 
-            makebtn.IsEnabled = false;
+        #region 变更模板
+     
 
-            makebtn.Content = "正在操作，请耐心等待...";
+        public void ChanagedTemplate(int t)
+        {
 
-          
+            switch (t)
+            {
+                case 0:
+                    tcs = 8;
+                    tp = "wsyw";
+                    break;
+                case 1:
+                    tcs = 4;
+                    tp = "wjz";
+                    break;
+                case 2:
+                    tcs = 6;
+                    tp = "dg";
+                    break;
+            }
+            
+            tclist = Subtitle.GetTCList(t);
+
+            mediaElement.Source = new Uri(starpath + "\\ffmpeg\\" + tp + ".mp4", UriKind.RelativeOrAbsolute);
+            mediaElement.Play();
+            tblist = new List<TextBox>();
+            sp.Children.Clear();
+            for (int i = 0; i < tcs; i++)
+            {
+
+                sp.Children.Add(new Label()
+                {
+                    Content = "第 " + (1 + i) + " 句"
+                });
+                TextBox tb = new TextBox();
+                tb.TextChanged += tboxtextchanged;
+                tblist.Add(tb);
+                sp.Children.Add(tb);
+            }
+        }
+
+        private void tboxtextchanged(object sender, TextChangedEventArgs e)
+        {
+            for(int i = 0; i < tcs; i++)
+            {
+                tclist[i].tc = tblist[i].Text;
+            }
+        }
+        #endregion
+        #region 生成srt文件
+        public void CreateSrt()
+        {
+            string[] tc = new string[tcs];
+            for (int i = 0; i < tcs; i++)
+            {
+                tc[i] = tblist[i].Text;
+            }
+            if (comboBox.SelectedIndex == 0)
+            {
+                Subtitle.CreateSrt_Sorry(tc);
+            }
+            else if (comboBox.SelectedIndex == 1)
+            {
+                Subtitle.CreateSrt_WJZ(tc);
+            }
+            else if (comboBox.SelectedIndex == 2)
+            {
+                Subtitle.CreateSrt_DG(tc);
+            }
         }
         #endregion
 
-        #region 生成台词（字幕文件）
-        //关于srt字幕可以参阅资料 https://jingyan.baidu.com/article/ce09321b7b75042bff858f0e.html
-        void MakeSrt()
-        {
-            string srt = "1\r\n00:00:00.970 --> 00:00:01.500\r\n" + l1.Text + "\r\n\r\n";
-            srt += "2\r\n00:00:03.110 --> 00:00:04.390\r\n" + l2.Text + "\r\n\r\n";
-            srt += "3\r\n00:00:05.180 --> 00:00:07.260\r\n" + l3.Text + "\r\n\r\n";
-            srt += "4\r\n00:00:07.260 --> 00:00:09.910\r\n" + l4.Text + "\r\n\r\n";
-            srt += "5\r\n00:00:10.000 --> 00:00:11.260\r\n" + l5.Text + "\r\n\r\n";
-            srt += "6\r\n00:00:11.630 --> 00:00:12.700\r\n" + l6.Text + "\r\n\r\n";
-            srt += "7\r\n00:00:13.610 --> 00:00:16.010\r\n" + l7.Text + "\r\n\r\n";
-            srt += "8\r\n00:00:18.080 --> 00:00:19.600\r\n" + l8.Text + "\r\n\r\n";
-
-            File.WriteAllText(starpath + "\\ffmpeg\\wsyw.srt", srt);
-
-            //转为ass字幕
-            string Parameters1 = String.Format("-i " + starpath + "\\ffmpeg\\wsyw.srt -y " + starpath + "\\ffmpeg\\wsyw.ass");
-            run.Execute(Parameters1, "ass");
-
-        }
-        #endregion
-
-        #region 选择保存路径按钮点击
-        private void savepath_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "GIF动态图|*.gif";
+            sfd.Title = "选择保存路径";
             if (sfd.ShowDialog() == true)
             {
 
-                savepath.Text = sfd.FileName;
-                gifsavepath = savepath.Text;
+                //textBox.Text = sfd.FileName;
+                gifsavepath = sfd.FileName;
+                //生成srt字幕
+                CreateSrt();
+                //转为ass字幕
+                string Parameters1 = String.Format("-i " + starpath + "\\ffmpeg\\srt.srt -y " + starpath + "\\ffmpeg\\ass.ass");
+                run.Execute(Parameters1, "ass");
+                button.Content = "正在生成GIF...请等待";
+
+                settinggb.IsEnabled = false;
+                button.IsEnabled = false;
             }
 
+
+
         }
-        #endregion
+
+        private void textBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }

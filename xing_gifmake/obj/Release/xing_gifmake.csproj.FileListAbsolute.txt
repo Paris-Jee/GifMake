@@ -1,0 +1,15 @@
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\bin\Release\xing_gifmake.exe.config
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\bin\Release\xing_gifmake.exe
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\bin\Release\xing_gifmake.pdb
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.csprojResolveAssemblyReference.cache
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\MainWindow.g.cs
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\App.g.cs
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake_MarkupCompile.cache
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake_MarkupCompile.lref
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\MainWindow.baml
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.g.resources
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.Properties.Resources.resources
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.csproj.GenerateResource.cache
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.csproj.CoreCompileInputs.cache
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.exe
+C:\Users\sb\source\repos\xing_gifmake\GifMake\xing_gifmake\obj\Release\xing_gifmake.pdb
