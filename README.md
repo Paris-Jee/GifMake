@@ -1,5 +1,4 @@
-# GifBiaoQingBao
-C#WPF调用FFMPEG实现“sorry为所欲为/王境泽”gif表情包生成
+# C#WPF调用FFMPEG实现“sorry为所欲为/王境泽”gif表情包生成
 
 ![](https://github.com/Berumotto-Github/GifMake/blob/master/xing_gifmake/gifys.gif?raw=true)
 
