@@ -8,10 +8,17 @@ using System.Threading.Tasks;
 
 namespace xing_gifmake
 {
+    /// <summary>
+    /// 已弃用（2018-4-19
+    /// </summary>
     public class Subtitle
     {
+
+
         //获取当前应用程序启动目录
         static string starpath = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+
+        
 
         #region 生成sorry为所欲为字幕srt文件
         /// <summary>
@@ -235,7 +242,7 @@ namespace xing_gifmake
                     TimeSpan ts = new TimeSpan(0, 0, 0, int.Parse(value.Split(':').Last().Split('.').First()), int.Parse(value.Split('.').Last()));
 
                     start = ts.TotalMilliseconds;
-                  
+
                 }
             }
             private string strend_;
@@ -258,9 +265,9 @@ namespace xing_gifmake
             public double end { get; set; }
             public string tc { get; set; }
 
-         
-               
-            
+
+
+
         }
         public static string GetTC(List<TC> tc, double ms)
         {

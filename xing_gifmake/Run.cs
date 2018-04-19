@@ -10,11 +10,13 @@ namespace xing_gifmake
 {
     public class Run
     {
-        //test
 
         //获取当前应用程序启动目录
         string starpath = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
+        object rid;
+
+        Process proc;
         #region 委托事件，用于通知操作完成
         public delegate void Handle(object rid);
         public event Handle RunedEvent;
@@ -26,14 +28,26 @@ namespace xing_gifmake
         }
         #endregion
 
+        public Run()
+        {
+            proc = new Process();
+            //启用关联进程终止通知事件
+            proc.EnableRaisingEvents = true;
+
+            proc.Exited += Proc_Exited; 
+        }
+
+     
         #region 执行指令
+
         public void Execute(string p, object rid)
         {
 
+            this.rid = rid;
 
             Thread thread = new Thread(new ThreadStart(() =>
             {
-                RunProcess(p, rid);
+                RunProcess(p);
                 System.Windows.Threading.Dispatcher.Run();
             }));
 
@@ -41,10 +55,11 @@ namespace xing_gifmake
             thread.IsBackground = true;
             thread.Start();
         }
-       
 
-        void RunProcess(string Parameters, object rid)
+        
+        void RunProcess(string Parameters)
         {
+
 
             //设置要启动的ffmpeg程序完整路径
             var oInfo = new ProcessStartInfo(starpath + "\\ffmpeg\\ffmpeg.exe", Parameters);
@@ -56,38 +71,32 @@ namespace xing_gifmake
 
             oInfo.CreateNoWindow = true;//获取或设置一个值指示是否开始在一个新的窗口过程。
 
-            oInfo.RedirectStandardOutput = true;//获取或设置指示是否将应用程序的文本输出写入 Process.StandardOutput 流中的值。
-
-            oInfo.RedirectStandardError = true;//获取或设置指示是否将应用程序的错误输出写入 Process.StandardError 流中的值。
 
             oInfo.RedirectStandardInput = true;//获取或设置一个值,指出是否输入读取应用程序的过程。StandardInput流。
 
 
-            var proc = Process.Start(oInfo);
+            proc.StartInfo = oInfo;
+     
+            proc.Start();
 
-            proc.EnableRaisingEvents = true;
+           
 
-            //proc.Exited += new EventHandler(Proc_Exited);
-            proc.Exited += delegate (Object o, EventArgs e) { Proc_Exited(rid, o, e); };
-
-            proc.BeginErrorReadLine();
-
+           
             proc.WaitForExit();
 
-            proc.Close();//关闭进程
-
-            proc.Dispose();//释放资源
+           
 
 
         }
+
+
         #endregion
 
-        #region 操作完成，进程退出
-        void Proc_Exited(object RID, object sender, EventArgs e)
+        #region 进程退出事件
+        void Proc_Exited(object sender, EventArgs e)
         {
-
             //操作完成
-            Event_(RID);
+            Event_(rid);
         }
         #endregion
 
